@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Navigate, Route, Routes } from "react-router";
-import { LoginPage } from "./features/auth/LoginPage";
+import LoginPage from "./features/auth/LoginPage";
 import { MyRequestsPage } from "./features/requests/MyRequestsPage";
 import { NewRequestPage } from "./features/requests/NewRequestPage";
 import { QueuePage } from "./features/requests/QueuePage";
