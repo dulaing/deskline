@@ -1,22 +1,27 @@
 <!DOCTYPE html>
+<html>
 <head>
     <link rel="stylesheet" href="./styles.css" />
 </head>
 
+<body>
+    <h1> Deskline Ticket Tracker</h1>
 
-<h1> Deskline Ticket Tracker</h1>
+    <form>
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" />
 
-<form>
-    <label for="title">Title</label>
-    <input id="title" name="title" type="text" />
+        <label for="description">Description</label>
+        <textarea id="description" name="description"></textarea>
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description"></textarea>
+        <button type="submit">Add ticket</button>
+    </form>
 
-    <button type="submit">Add ticket</button>
-</form>
+    <section aria-labelledby="ticket-list-heading">
+        <h2 id="ticket-list-heading">Tickets</h2>
+        <ul id="ticket-list"></ul>
+    </section>
 
-<section aria-labelledby="ticket-list-heading">
-    <h2 id="ticket-list-heading">Tickets</h2>
-    <ul id="ticket-list"></ul>
-</section>
+    <script src="./app.js"></script>
+</body>
+</html>
