@@ -53,6 +53,36 @@
   padding-block: 2rem;
 }
 
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.status-badge--open {
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.status-badge--pending {
+  color: #b54708;
+  background: #fffaeb;
+}
+
+.status-badge--closed {
+  color: #344054;
+  background: #f2f4f7;
+}
+
+.status-badge--cancelled {
+  color: #b42318;
+  background: #fef3f2;
+}
+
 button {
   min-height: 2.5rem;
   padding: 0.55rem 0.8rem;
