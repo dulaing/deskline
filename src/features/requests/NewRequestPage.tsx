@@ -1,3 +1,195 @@
+import { useState, type SubmitEvent } from "react";
+import { Link, Navigate, useNavigate } from "react-router";
+
+import { messages, requests } from "../../mocks/data";
+import { getSession } from "../auth/session";
+import type {Category, Message, Priority, Request} from "./types";
+
+type TouchedFields = {
+  title: boolean;
+  description: boolean;
+};
+
 export function NewRequestPage() {
-  return <h1>New Requests Page</h1>;
+  const navigate = useNavigate();
+  const currentUser = getSession();
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Category>("hardware");
+  const [priority, setPriority] = useState<Priority>("medium");
+  const [touched, setTouched] = useState<TouchedFields>({
+    title: false,
+    description: false,
+  });
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (currentUser.role !== "requester") {
+    return <Navigate to="/queue" replace />;
+  }
+
+  const requester = currentUser;
+
+  const titleError = title.trim().length < 3 ? "Enter at least 3 characters." : "";
+
+  const descriptionError = description.trim().length < 10 ? "Enter at least 10 characters." : "";
+
+  const isValid = !titleError && !descriptionError;
+
+  function handleSubmit(event: SubmitEvent<HTMLFormElement> ): void {
+    event.preventDefault();
+
+    if (!isValid) {
+      setTouched({ title: true, description: true});
+      return;
+    }
+
+    const requestId = `request-${crypto.randomUUID()}`;
+    const messageId = `message-${crypto.randomUUID()}`;
+    const now = new Date().toISOString();
+
+    const newRequest: Request = {
+      id: requestId,
+      title: title.trim(),
+      status: "open",
+      priority,
+      category,
+      requesterId: requester.id,
+      assigneeId: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const firstMessage: Message = {
+      id: messageId,
+      requestId,
+      authorId: requester.id,
+      body: description.trim(),
+      createdAt: now,
+    };
+
+    requests.unshift(newRequest);
+    messages.push(firstMessage);
+    navigate(`/requests/${requestId}`);
+  }
+
+  const showTitleError = touched.title && Boolean(titleError);
+  const showDescriptionError = touched.description && Boolean(descriptionError);
+
+  return (
+    <section className="page-section">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow"> Requester </p>
+          <h1> Create a request </h1>
+          <p> Tell the support team what happened and how urgent it is. </p>
+        </div> <Link to="/my-requests"> Back to my request </Link>
+      </div>
+
+      <form
+        className="request-form"
+        onSubmit={handleSubmit}
+        noValidate
+      >
+        <div className="form-field">
+          <label htmlFor="request-title">Title</label>
+          <input
+            id="request-title"
+            name="title"
+            type="text"
+            value={title}
+            placeholder="Example: VPN disconnects repeatedly"
+            aria-invalid={showTitleError}
+            aria-describedby={showTitleError ? "request-title-error" : undefined}
+            onChange={(event) => setTitle(event.target.value)}
+            onBlur={() => setTouched((current) => ({...current, title: true}))}
+          />
+          {showTitleError && (
+            <p
+              className="field-error"
+              id="request-title-error"
+              role="alert"
+            >
+              {titleError}
+            </p>
+          )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="request-description"> Description </label>
+          <textarea
+            id="request-description"
+            name="description"
+            rows={6}
+            value={description}
+            placeholder="Describe the problem and anything you already tried."
+            aria-invalid={showDescriptionError}
+            aria-describedby={showDescriptionError ? "request-description-error" : "request-description-hint"}
+            onChange={(event) => setDescription(event.target.value)}
+            onBlur={() => setTouched((current) => ({...current, description: true}))}
+          />
+          <p
+            className="field-hint"
+            id="request-description-hint"
+          >
+            This becomes the first message in the request.
+          </p>
+          {showDescriptionError && (
+            <p
+              className="field-error"
+              id="request-description-error"
+              role="alert"
+            >
+              {descriptionError}
+            </p>
+          )}
+        </div>
+
+        <div className="form-row">
+          <div className="form-field">
+            <label htmlFor="request-category">Category</label>
+            <select
+              id="request-category"
+              name="category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value as Category)}
+            >
+              <option value="hardware">Hardware</option>
+              <option value="software">Software</option>
+              <option value="facilities">Facilities</option>
+              <option value="access">Access</option>
+            </select>
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="request-priority">Priority</label>
+            <select
+              id="request-priority"
+              name="priority"
+              value={priority}
+              onChange={(event) => setPriority(event.target.value as Priority)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <Link className="button-link" to="/my-requests"> Cancel </Link>
+          <button
+            className="button button--primary"
+            type="submit"
+            disabled={!isValid}
+          >
+            Create request
+          </button>
+        </div>
+      </form>
+    </section>
+  );
 }

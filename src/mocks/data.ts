@@ -1,4 +1,8 @@
-import type { Request, User } from "../features/requests/types";
+import type {
+  Message,
+  Request,
+  User,
+} from "../features/requests/types";
 
 export const users: User[] = [
   {
@@ -114,3 +118,34 @@ export const requests: Request[] = [
     updatedAt: "2026-07-28T04:15:00.000Z",
   },
 ];
+
+const descriptions: Record<string, string> = {
+  "request-1":
+    "The VPN disconnects every few minutes on both Wi-Fi and ethernet.",
+  "request-2":
+    "The laptop becomes very hot and slows down during video calls.",
+  "request-3":
+    "The payroll application closes immediately after I try to open it.",
+  "request-4":
+    "The ceiling light above my workstation is flickering and no longer works.",
+  "request-5":
+    "I receive an access denied message when opening the shared inbox.",
+  "request-6":
+    "The meeting room screen reports no signal for every connected laptop.",
+  "request-7":
+    "The design application reports that its team license has expired.",
+  "request-8":
+    "Water is leaking from the air conditioner close to the desks.",
+};
+
+export const messages: Message[] = requests.map(
+  (request, index) => ({
+    id: `message-${index + 1}`,
+    requestId: request.id,
+    authorId: request.requesterId,
+    body:
+      descriptions[request.id] ??
+      "The requester did not provide a description.",
+    createdAt: request.createdAt,
+  }),
+);
