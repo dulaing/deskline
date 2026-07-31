@@ -22,10 +22,13 @@ export function RequestFilters({
   onCategoryChange,
 }: RequestFiltersProps) {
   return (
-    <div className="request-filters" aria-label="Request filters">
-      <label>
-        Search by title
+    <fieldset className="request-filters">
+      <legend className="visually-hidden">Filter requests</legend>
+
+      <label htmlFor="request-search">
+        <span>Search by title</span>
         <input
+          id="request-search"
           type="search"
           value={titleSearch}
           placeholder="Search requests"
@@ -35,9 +38,10 @@ export function RequestFilters({
         />
       </label>
 
-      <label>
-        Status
+      <label htmlFor="request-status">
+        <span>Status</span>
         <select
+          id="request-status"
           value={status}
           onChange={(event) =>
             onStatusChange(event.target.value as Status | "all")
@@ -51,9 +55,10 @@ export function RequestFilters({
         </select>
       </label>
 
-      <label>
-        Priority
+      <label htmlFor="request-priority-filter">
+        <span>Priority</span>
         <select
+          id="request-priority-filter"
           value={priority}
           onChange={(event) =>
             onPriorityChange(event.target.value as Priority | "all")
@@ -66,9 +71,10 @@ export function RequestFilters({
         </select>
       </label>
 
-      <label>
-        Category
+      <label htmlFor="request-category-filter">
+        <span>Category</span>
         <select
+          id="request-category-filter"
           value={category}
           onChange={(event) =>
             onCategoryChange(event.target.value as Category | "all")
@@ -81,6 +87,6 @@ export function RequestFilters({
           <option value="access">Access</option>
         </select>
       </label>
-    </div>
+    </fieldset>
   );
 }

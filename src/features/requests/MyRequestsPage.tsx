@@ -4,8 +4,7 @@ import { RequestList } from "./RequestList";
 import { RequestFilters } from "./RequestFilters";
 import type { Category, Priority, Status } from "./types";
 
-import {useState} from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 type FilterKey = "search" | "status" | "priority" | "category";
 
@@ -25,6 +24,12 @@ export function MyRequestsPage() {
   const statusFilter = (searchParams.get("status") as Status | null) ?? "all";
   const priorityFilter = (searchParams.get("priority") as Priority | null) ?? "all";
   const categoryFilter = (searchParams.get("category") as Category | null) ?? "all";
+
+  const hasActiveFilters =
+    titleSearch !== "" ||
+    statusFilter !== "all" ||
+    priorityFilter !== "all" ||
+    categoryFilter !== "all";
 
   // if a user is logged in, filter the requests to only include the requests that the user has created
   const myRequests = currentUser ? requests.filter((request) => request.requesterId === currentUser.id) : [];
@@ -54,8 +59,18 @@ export function MyRequestsPage() {
   }
 
   return (
-    <>
-      <h1>My requests</h1>
+    <section className="page-section">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">Requester</p>
+          <h1>My requests</h1>
+          <p>Track requests you have sent to the support team.</p>
+        </div>
+        <Link className="button-link button-link--primary" to="/requests/new">
+          New request
+        </Link>
+      </div>
+
       <RequestFilters
         titleSearch={titleSearch}
         status={statusFilter}
@@ -67,7 +82,30 @@ export function MyRequestsPage() {
         onPriorityChange={(value) => updateFilter("priority", value)}
         onCategoryChange={(value) => updateFilter("category", value)}
       />
-      <RequestList requests={filteredRequests} />
-    </>
+
+
+      {myRequests.length === 0 ? (
+        /* this is basically a nested if else logic */
+        <div className="state-panel">
+          <h2>You have no requests yet</h2>
+          <p>Create your first request to contact the support team.</p>
+          <Link className="button-link button-link--primary" to="/requests/new">
+            Create a request
+          </Link>
+        </div>
+      ) : filteredRequests.length === 0 ? (
+        <div className="state-panel">
+          <h2>No requests match these filters</h2>
+          <p>Clear the filters to see all of your requests.</p>
+          {hasActiveFilters && (
+            <button type="button" onClick={() => setSearchParams(new URLSearchParams(), {replace: true})}>
+              Clear filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <RequestList requests={filteredRequests}/>
+      )}
+    </section>
   );
 }
