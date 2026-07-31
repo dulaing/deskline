@@ -12,7 +12,13 @@
   --text-muted: #667085;
   --border: #d0d5dd;
   --accent: #2563eb;
+  --on-accent: #ffffff;
   --focus: #84adff;
+  --surface-muted: #f2f4f7;
+  --danger: #b42318;
+  --danger-surface: #fef3f2;
+  --success: #067647;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 :root[data-theme="dark"] {
@@ -24,7 +30,12 @@
   --text-muted: #98a2b3;
   --border: #475467;
   --accent: #84adff;
+  --on-accent: #101828;
   --focus: #528bff;
+  --surface-muted: #344054;
+  --danger: #fda29b;
+  --danger-surface: #55160c;
+  --success: #6ce9a6;
 }
 
 * {
