@@ -1,4 +1,6 @@
-import { requests } from "../../mocks/data";
+//import { requests } from "../../mocks/data";
+import { useQuery } from "@tanstack/react-query";
+import {getRequests} from "../../api/requestApi";
 import { getSession } from "../auth/session";
 import { RequestList } from "./RequestList";
 import { RequestFilters } from "./RequestFilters";
@@ -20,10 +22,48 @@ export function MyRequestsPage() {
 
   // searchParams
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const {
+    data: requests = [],
+    error,
+    isError,
+    isFetching,
+    isPending,
+    refetch,
+   } = useQuery({ queryKey: ["requests"], queryFn: getRequests});
+
+
   const titleSearch = searchParams.get("search") ?? "";
   const statusFilter = (searchParams.get("status") as Status | null) ?? "all";
   const priorityFilter = (searchParams.get("priority") as Priority | null) ?? "all";
   const categoryFilter = (searchParams.get("category") as Category | null) ?? "all";
+
+  if (isPending) {
+  return (
+    <section className="page-section">
+      <div className="state-panel" role="status" aria-live="polite">
+        <h1>My requests</h1>
+        <p>Loading your requests…</p>
+      </div>
+    </section>
+  );
+}
+
+if (isError) {
+  return (
+    <section className="page-section">
+      <div className="state-panel state-panel--error" role="alert">
+        <h1>Could not load your requests</h1>
+
+        <p> {error instanceof Error ? error.message : "An unexpected error occurred."} </p>
+
+        <button type="button" disabled={isFetching} onClick={() => void refetch()}>
+          {isFetching ? "Retrying…" : "Retry"}
+        </button>
+      </div>
+    </section>
+  );
+}
 
   const hasActiveFilters =
     titleSearch !== "" ||
