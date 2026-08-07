@@ -22,3 +22,20 @@ export type ApiRequestDetailDto = {
   request: ApiRequestDto;
   messages: ApiMessageDto[];
 };
+
+export type ApiUserDto = {
+  id: string;
+  name: string;
+  email: string;
+  role: "requester" | "technician" | "admin";
+};
+
+export type ApiLoginInputDto = {
+  email: string;
+  password: string;
+};
+
+export type ApiLoginResponseDto = {
+  user: ApiUserDto;
+  token: string;
+};

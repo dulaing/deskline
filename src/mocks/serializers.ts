@@ -1,5 +1,5 @@
-import type { ApiMessageDto, ApiRequestDto } from "../api/types";
-import type { Message, Request } from "../features/requests/types";
+import type { ApiMessageDto, ApiRequestDto, ApiUserDto } from "../api/types";
+import type { Message, Request, User } from "../features/requests/types";
 
 export function toApiRequest(request: Request): ApiRequestDto {
     return{
@@ -23,4 +23,13 @@ export function toApiMessage(message: Message): ApiMessageDto {
         body: message.body,
         created_at: message.createdAt
     }
+}
+
+export function toApiUser(user: User): ApiUserDto {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
 }

@@ -1,18 +1,42 @@
 import { delay, http, HttpResponse } from 'msw';
-import type { ApiRequestDetailDto } from '../api/types';
 import { messages, requests, users } from './data';
-import { toApiMessage, toApiRequest } from './serializers';
+import { toApiMessage, toApiRequest, toApiUser } from './serializers';
+import type { ApiLoginInputDto, ApiLoginResponseDto, ApiRequestDetailDto } from '../api/types';
 
 export const handlers = [
+    http.post("/login", async ({ request }) => {
+        await delay(1500);
+
+        const credentials = await request.json() as ApiLoginInputDto;
+
+        const matchedUser = users.find((user) =>
+            user.email.toLowerCase() === credentials.email.trim().toLowerCase() &&
+            user.password === credentials.password,
+        );
+
+        if (!matchedUser) {
+            return HttpResponse.json(
+            {
+                message: "Incorrect email or password.",
+            },
+            {
+                status: 401,
+            },
+            );
+        }
+
+        const responseBody: ApiLoginResponseDto = {
+            user: toApiUser(matchedUser),
+            token: `deskline-token:${matchedUser.id}`,
+        };
+
+        return HttpResponse.json(responseBody);
+    }),
+
     http.get('/users', async () => {
         await delay(1500); // Simulate network delay
-        const safeUsers = users.map((user) =>({
-            id: user.id,
-            name: user.name,
-            email: user.email, //passwords are excluded
-            role: user.role,
-        }))
-        return HttpResponse.json(safeUsers);
+
+        return HttpResponse.json(users.map(toApiUser));
     }),
 
     http.get('/requests', async () => {

@@ -4,7 +4,11 @@ import type {
   User,
 } from "../features/requests/types";
 
-export const users: User[] = [
+type MockUser = User & {
+  password: string;
+};
+
+export const users: MockUser[] = [
   {
     id: "user-1",
     name: "Ravi Requester",
