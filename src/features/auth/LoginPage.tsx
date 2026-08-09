@@ -2,7 +2,6 @@ import { useState, type SubmitEvent } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { login, type LoginCredentials } from "../../api/authApi";
-import { users } from "../../mocks/data";
 import { getSession, saveSession } from "./session";
 
 export default function LoginPage() {
@@ -11,7 +10,6 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginCredentials) => login(credentials),

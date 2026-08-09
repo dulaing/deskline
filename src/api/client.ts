@@ -19,7 +19,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
         headers.set("Content-Type", "application/json");
     }
 
-    if (session && !headers.has("Content-Type")) {
+    if (session && !headers.has("Authorization")) {
         headers.set("Authorization", `Bearer ${session.token}`);
     }
 
