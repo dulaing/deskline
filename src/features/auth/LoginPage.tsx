@@ -1,37 +1,58 @@
 import { useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router";
-
+import { Navigate, useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
+import { login, type LoginCredentials } from "../../api/authApi";
 import { users } from "../../mocks/data";
-import { saveSession } from "./session";
+import { getSession, saveSession } from "./session";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const existingSession = getSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  const loginMutation = useMutation({
+    mutationFn: (credentials: LoginCredentials) => login(credentials),
+
+    onSuccess: (result) => {
+      saveSession(result);
+
+      const destination = result.user.role === "requester" ? "/my-requests" : "/queue";
+
+      navigate(destination, { replace: true });
+    }
+  })
+
+  if (existingSession) {
+    const destination = existingSession.user.role === "requester" ? "/my-requests" : "/queue";
+
+    return <Navigate to={destination} replace />;
+  }
+
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>): void {
     event.preventDefault();
 
-    const matchedUser = users.find(
-      (user) =>
-        user.email.toLowerCase() === email.trim().toLowerCase() &&
-        user.password === password,
-    );
+    loginMutation.mutate({
+      email: email.trim(),
+      password,
+    })
+  };
 
-    if (!matchedUser) {
-      setError("Incorrect email or password.");
-      return;
+  function handleEmailChange(value: string): void {
+    setEmail(value);
+
+    if (loginMutation.isError) {
+      loginMutation.reset();
     }
+  }
 
-    saveSession(matchedUser);
-    setError("");
+  function handlePasswordChange(value: string): void {
+    setPassword(value);
 
-    if (matchedUser.role === "requester") {
-      navigate("/my-requests");
-    } else {
-      navigate("/queue");
+    if (loginMutation.isError) {
+      loginMutation.reset();
     }
   }
 
@@ -44,9 +65,12 @@ export default function LoginPage() {
           <label htmlFor="email">Email</label>
           <input
             id="email"
+            name="email"
             type="email"
+            autoComplete="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            disabled={loginMutation.isPending}
+            onChange={(event) => handleEmailChange(event.target.value)}
             required
           />
         </div>
@@ -55,17 +79,42 @@ export default function LoginPage() {
           <label htmlFor="password">Password</label>
           <input
             id="password"
+            name="password"
+            autoComplete="current-password"
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            disabled={loginMutation.isPending}
+            onChange={(event) => handlePasswordChange(event.target.value)}
             required
           />
         </div>
 
-        {error && <p role="alert">{error}</p>}
+        {loginMutation.isError && <p role="alert">
+          {loginMutation.error instanceof Error ? loginMutation.error.message : "Login failed. Please try again."}
+        </p>}
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loginMutation.isPending}>
+          {loginMutation.isPending ? "Logging in..." : "Login"}
+        </button>
       </form>
+
+      <section aria-labelledby="demo-accounts-heading">
+        <h2 id="demo-accounts-heading">Demo accounts</h2>
+
+        <ul>
+          <li>
+            Requester: requester@deskline.test
+          </li>
+          <li>
+            Technician: technician@deskline.test
+          </li>
+          <li>
+            Admin: admin@deskline.test
+          </li>
+        </ul>
+
+        <p>Password for every account: password</p>
+      </section>
     </main>
   );
 }

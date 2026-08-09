@@ -1,6 +1,5 @@
-import type { Message, Request} from "../features/requests/types";
-
-import type { ApiMessageDto, ApiRequestDto } from "./types";
+import type { Message, Request, User} from "../features/requests/types";
+import type { ApiMessageDto, ApiRequestDto, ApiUserDto } from "./types";
 
 export function mapApiRequest(apiRequest: ApiRequestDto): Request {
   return {
@@ -24,4 +23,13 @@ export function mapApiMessage(apiMessage: ApiMessageDto): Message {
     body: apiMessage.body,
     createdAt: apiMessage.created_at,
   };
+}
+
+export function mapApiUser(apiUser: ApiUserDto): User {
+  return {
+    id: apiUser.id,
+    name: apiUser.name,
+    email: apiUser.email,
+    role: apiUser.role,
+  }
 }

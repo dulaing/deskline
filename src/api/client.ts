@@ -1,3 +1,5 @@
+import { getSession } from "../features/auth/session";
+
 export class ApiError extends Error {
     status: number;
 
@@ -11,9 +13,14 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
     const headers = new Headers(options.headers);
+    const session = getSession();
 
     if(options.body && !headers.has("Content-Type")){
         headers.set("Content-Type", "application/json");
+    }
+
+    if (session && !headers.has("Content-Type")) {
+        headers.set("Authorization", `Bearer ${session.token}`);
     }
 
     const response = await fetch(path, {

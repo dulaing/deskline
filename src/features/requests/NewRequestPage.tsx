@@ -12,7 +12,7 @@ type TouchedFields = {
 
 export function NewRequestPage() {
   const navigate = useNavigate();
-  const currentUser = getSession();
+  const currentUser = getSession()?.user ?? null;
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

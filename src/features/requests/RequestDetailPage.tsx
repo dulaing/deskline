@@ -9,7 +9,7 @@ import type { Message, Request } from "./types";
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const currentUser = getSession();
+  const currentUser = getSession()?.user ?? null;
 
   const [request, setRequest] = useState<Request | undefined>(
     () => requests.find((candidate) => candidate.id === id),

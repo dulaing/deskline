@@ -1,12 +1,17 @@
 import type { User } from "../requests/types";
 
-const SESSION_KEY = "deskline-user";
+const SESSION_KEY = "deskline-session";
 
-export function saveSession(user: User): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+export type Session = {
+  user: User;
+  token: string;
 }
 
-export function getSession(): User | null {
+export function saveSession(session: Session): void {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+export function getSession(): Session | null {
   const savedUser = localStorage.getItem(SESSION_KEY);
 
   if (!savedUser) {
@@ -14,7 +19,7 @@ export function getSession(): User | null {
   }
 
   try {
-    return JSON.parse(savedUser) as User;
+    return JSON.parse(savedUser) as Session;
   } catch {
     clearSession();
     return null;

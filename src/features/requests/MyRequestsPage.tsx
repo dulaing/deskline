@@ -12,7 +12,7 @@ type FilterKey = "search" | "status" | "priority" | "category";
 
 export function MyRequestsPage() {
 
-   const currentUser = getSession();
+   const currentUser = getSession()?.user ?? null;
 
   // useState (no searchParams)
   // const [titleSearch, setTitleSearch] = useState("");

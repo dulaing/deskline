@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, Outlet, useNavigate} from "react-router";
 import { clearSession, getSession } from "../features/auth/session";
+import { queryClient } from "./queryClient";
 
 type Theme = "light" | "dark";
 
@@ -15,11 +16,9 @@ function getStartingTheme(): Theme {
     return savedTheme;
   }
 
-  return "dark";
-
-  // return window.matchMedia("(prefers-color-scheme: dark)").matches
-  //   ? "dark"
-  //   : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 function getStartingMotionPreference(): boolean {
@@ -34,7 +33,7 @@ function getStartingMotionPreference(): boolean {
 
 export function AppShell() {
   const navigate = useNavigate();
-  const currentUser = getSession();
+  const currentUser = getSession()?.user ?? null;
   const [theme, setTheme] = useState<Theme>(getStartingTheme);
   const [reduceMotion, setReduceMotion] = useState(getStartingMotionPreference);
 
@@ -55,6 +54,7 @@ export function AppShell() {
 
   function handleLogout(): void {
     clearSession();
+    queryClient.clear();
     navigate("/login", { replace: true });
   }
 
