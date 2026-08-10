@@ -25,6 +25,7 @@ export function mapApiMessage(apiMessage: ApiMessageDto): Message {
   };
 }
 
+// Converts the login response's API user into the UI User.
 export function mapApiUser(apiUser: ApiUserDto): User {
   return {
     id: apiUser.id,

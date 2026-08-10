@@ -13,6 +13,7 @@ export type LoginResult = {
     token: string;
 }
 
+// Sends the form values to /login and maps the API user into the UI model.
 export async function login (credentials: LoginCredentials): Promise<LoginResult> {
     const input: ApiLoginInputDto = {
         email: credentials.email,

@@ -1,11 +1,12 @@
 import { useState, type SubmitEvent } from "react";
 import { Navigate, useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login, type LoginCredentials } from "../../api/authApi";
 import { getSession, saveSession } from "./session";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const existingSession = getSession();
 
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export default function LoginPage() {
 
     onSuccess: (result) => {
       saveSession(result);
+      queryClient.clear();
 
       const destination = result.user.role === "requester" ? "/my-requests" : "/queue";
 
