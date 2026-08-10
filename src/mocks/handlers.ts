@@ -155,7 +155,7 @@ export const handlers = [
         const responseBody: ApiRequestDetailDto = {
             request: toApiRequest(desklineRequest),
             messages: requestMessages.map(toApiMessage),
-            users: relatedUsers,
+            users: relatedUsers.map(toApiUser),
         }
 
         return HttpResponse.json(responseBody);
