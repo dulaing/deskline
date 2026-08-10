@@ -43,6 +43,10 @@ export function canChangeAssignee (
         return false;
     }
 
+    if (currentUser.role === "technician") {
+        return nextAssigneeId === currentUser.id;
+    }
+
     if (currentUser.role === "admin") {
         if (nextAssigneeId === null) {
             return true;
