@@ -39,3 +39,8 @@ export type ApiLoginResponseDto = {
   user: ApiUserDto;
   token: string;
 };
+
+export type ApiUpdateRequestInputDto = {
+  status?: ApiRequestDto["status"];
+  assignee_id?: string | null;
+}

@@ -1,8 +1,9 @@
 import { delay, http, HttpResponse } from 'msw';
 import { messages, requests, users } from './data';
 import { toApiMessage, toApiRequest, toApiUser } from './serializers';
-import type { ApiLoginInputDto, ApiLoginResponseDto, ApiRequestDetailDto } from '../api/types';
+import type { ApiLoginInputDto, ApiLoginResponseDto, ApiRequestDetailDto, ApiUpdateRequestInputDto } from '../api/types';
 import { getAuthenticatedUser } from "./auth";
+import { canChangeAssignee, canChangeStatus } from './requestRules';
 
 export const handlers = [
     http.post("/login", async ({ request }) => {
@@ -143,5 +144,118 @@ export const handlers = [
         }
 
         return HttpResponse.json(responseBody);
+    }),
+
+    http.patch('/requests/:id', async ({ params, request }) => {
+        await delay(1500); // Simulate network delay
+
+        const currentUser = getAuthenticatedUser(request);
+
+        if (!currentUser) {
+            return HttpResponse.json(
+                {
+                    message: "Authentication required.",
+                },
+                {
+                    status: 401,
+                }
+            )
+        }
+
+        const requestId = String(params.id);
+
+        const requestIndex = requests.findIndex((candidate) => candidate.id === requestId);
+
+        if (requestIndex < 0) {
+            return HttpResponse.json(
+                { 
+                    message: 'Request not found' 
+                },
+                {
+                    status: 404
+                }
+            )
+        }
+
+        const desklineRequest = requests[requestIndex];
+
+        const input = await request.json() as ApiUpdateRequestInputDto;
+
+        const hasStatusChange = input.status !== undefined
+
+        const hasAssigneeChange = input.assignee_id !== undefined
+
+        if (!hasStatusChange && !hasAssigneeChange) {
+            return HttpResponse.json(
+                {
+                    message: "No changes were provided.",
+                },
+                {
+                    status: 400,
+                }
+            )
+        }
+
+        const isTerminal = desklineRequest.status === "closed" || desklineRequest.status === "cancelled";
+
+        if (isTerminal) {
+            return HttpResponse.json(
+                {
+                    message: "Closed and cancelled requests cannot be changed.",
+                },
+                {
+                    status: 403,
+                }
+            )
+        }
+
+        if (hasStatusChange && !canChangeStatus(currentUser, desklineRequest, input.status!)) {
+            return HttpResponse.json(
+                {
+                    message: "You do not have permission to change the status of this request.",
+                },
+                {
+                    status: 403,
+                }
+            )
+        }
+
+        const nextAssigneeId = input.assignee_id ?? null;
+
+        if (hasAssigneeChange && !canChangeAssignee(currentUser, nextAssigneeId, users)) {
+            return HttpResponse.json(
+                {
+                    message: "You do not have permission to change the assignee of this request.",
+                },
+                {
+                    status: 403,
+                }
+            )
+        }
+
+        const now = new Date().toISOString();
+
+        const previousStatus = desklineRequest.status;
+
+        const updatedRequest = {
+            ...desklineRequest,
+            status: hasStatusChange ? input.status! : desklineRequest.status,
+            assigneeId: hasAssigneeChange ? nextAssigneeId : desklineRequest.assigneeId,
+            updatedAt: now,
+        }
+
+        requests[requestIndex] = updatedRequest;
+
+        if (hasStatusChange && updatedRequest.status !== previousStatus) {
+            messages.push({
+                id: `message-${crypto.randomUUID()}`,
+                requestId: updatedRequest.id,
+                authorId: currentUser.id,
+                body: `Status changed from ${previousStatus} to ${updatedRequest.status}.`,
+                createdAt: now,
+            })
+        }
+
+        return HttpResponse.json(toApiRequest(updatedRequest));
     }),
 ]
