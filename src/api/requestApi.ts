@@ -1,11 +1,12 @@
-import type { Message, Request, Status } from "../features/requests/types";
+import type { Message, Request, Status, User } from "../features/requests/types";
 import { apiFetch } from "./client";
-import { mapApiRequest, mapApiMessage } from "./mappers";
+import { mapApiRequest, mapApiMessage, mapApiUser } from "./mappers";
 import type { ApiRequestDetailDto, ApiRequestDto, ApiUpdateRequestInputDto } from "./types";
 
 export type RequestDetail = {
     request: Request;
     messages: Message[];
+    users: User[];
 }
 
 export async function getRequests(): Promise<Request[]> {
@@ -19,7 +20,8 @@ export async function getRequest(id: string): Promise<RequestDetail> {
 
     return {
         request: mapApiRequest(apiDetail.request),
-        messages: apiDetail.messages.map(mapApiMessage)
+        messages: apiDetail.messages.map(mapApiMessage),
+        users: apiDetail.users.map(mapApiUser),
     };
 }
 

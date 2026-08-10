@@ -138,9 +138,24 @@ export const handlers = [
 
         const requestMessages = messages.filter((message) => message.requestId === requestId);
 
+        const relatedUserIds = new Set<string>();
+
+        relatedUserIds.add(desklineRequest.requesterId);
+
+        if (desklineRequest.assigneeId) {
+            relatedUserIds.add(desklineRequest.assigneeId);
+        }
+
+        for (const message of requestMessages) {
+            relatedUserIds.add(message.authorId);
+        }
+
+        const relatedUsers = users.filter((user) => relatedUserIds.has(user.id));
+
         const responseBody: ApiRequestDetailDto = {
             request: toApiRequest(desklineRequest),
             messages: requestMessages.map(toApiMessage),
+            users: relatedUsers,
         }
 
         return HttpResponse.json(responseBody);

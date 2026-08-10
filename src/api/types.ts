@@ -21,6 +21,7 @@ export type ApiMessageDto = {
 export type ApiRequestDetailDto = {
   request: ApiRequestDto;
   messages: ApiMessageDto[];
+  users: ApiUserDto[];
 };
 
 export type ApiUserDto = {
