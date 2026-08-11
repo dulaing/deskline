@@ -259,6 +259,107 @@ export const handlers = [
         return HttpResponse.json(responseBody);
     }),
 
+    http.post("/requests/:id/messages", async ({ params, request }) => {
+        await delay(1500);
+
+        const currentUser =
+        getAuthenticatedUser(request);
+
+        if (!currentUser) {
+        return HttpResponse.json(
+            {
+            message: "Authentication required.",
+            },
+            {
+            status: 401,
+            },
+        );
+        }
+
+        const requestId = String(params.id);
+
+        const desklineRequest = requests.find(
+            (candidate) => candidate.id === requestId,
+        );
+
+        if (!desklineRequest) {
+            return HttpResponse.json(
+                {
+                message: "Request not found.",
+                },
+                {
+                status: 404,
+                },
+            );
+        }
+
+        const isStaff = 
+            currentUser.role === "technician" ||
+            currentUser.role === "admin";
+
+        const ownsRequest = desklineRequest.requesterId === currentUser.id;
+
+        if (!isStaff && !ownsRequest) {
+            return HttpResponse.json(
+                {
+                    message: "You cannot comment on this request.",
+                },
+                {
+                    status: 403,
+                },
+            );
+        }
+
+        const isReadOnly =
+            desklineRequest.status === "closed" ||
+            desklineRequest.status === "cancelled";
+
+        if (isReadOnly) {
+            return HttpResponse.json(
+                {
+                message:
+                    "This request is read-only.",
+                },
+                {
+                status: 403,
+                },
+            );
+        }
+
+        const input = await request.json() as ApiAddMessageInputDto;
+
+        if (typeof input.body !== "string" || input.body.trim().length === 0) {
+            return HttpResponse.json(
+                {
+                    message: "Enter a comment before submitting.",
+                },
+                {
+                    status: 400,
+                },
+            );
+        }
+
+        const now = new Date().toISOString();
+
+        const newMessage: DesklineMessage = {
+            id: `message-${crypto.randomUUID()}`, requestId,
+            authorId: currentUser.id,
+            body: input.body.trim(),
+            createdAt: now,
+        };
+
+        messages.push(newMessage);
+        desklineRequest.updatedAt = now;
+
+        return HttpResponse.json(
+            toApiMessage(newMessage),
+            {
+                status: 201,
+            },
+        );
+    },
+    ),
+
     http.patch('/requests/:id', async ({ params, request }) => {
         await delay(1500); // Simulate network delay
 

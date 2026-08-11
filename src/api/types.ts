@@ -52,3 +52,7 @@ export type ApiCreateRequestInputDto = {
   priority: ApiRequestDto["priority"];
   category: ApiRequestDto["category"];
 };
+
+export type ApiAddMessageInputDto = {
+  body: string;
+};

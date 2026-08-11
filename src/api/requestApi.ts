@@ -1,7 +1,7 @@
 import type { Message, Request, Status, User, Category, Priority } from "../features/requests/types";
 import { apiFetch } from "./client";
 import { mapApiRequest, mapApiMessage, mapApiUser } from "./mappers";
-import type { ApiRequestDetailDto, ApiRequestDto, ApiUpdateRequestInputDto, ApiCreateRequestInputDto } from "./types";
+import type { ApiRequestDetailDto, ApiRequestDto, ApiUpdateRequestInputDto, ApiCreateRequestInputDto, ApiAddMessageInputDto, ApiMessageDto } from "./types";
 
 export type RequestDetail = {
     request: Request;
@@ -75,4 +75,24 @@ export async function createRequest(
     messages: apiDetail.messages.map(mapApiMessage),
     users: apiDetail.users.map(mapApiUser),
   };
+}
+
+export async function addMessage(
+  requestId: string,
+  body: string,
+): Promise<Message> {
+  const apiInput: ApiAddMessageInputDto = {
+    body,
+  };
+
+  const apiMessage =
+    await apiFetch<ApiMessageDto>(
+      `/requests/${encodeURIComponent(requestId)}/messages`,
+      {
+        method: "POST",
+        body: JSON.stringify(apiInput),
+      },
+    );
+
+  return mapApiMessage(apiMessage);
 }
