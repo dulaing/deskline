@@ -1,7 +1,7 @@
-import type { Message, Request, Status, User } from "../features/requests/types";
+import type { Message, Request, Status, User, Category, Priority } from "../features/requests/types";
 import { apiFetch } from "./client";
 import { mapApiRequest, mapApiMessage, mapApiUser } from "./mappers";
-import type { ApiRequestDetailDto, ApiRequestDto, ApiUpdateRequestInputDto } from "./types";
+import type { ApiRequestDetailDto, ApiRequestDto, ApiUpdateRequestInputDto, ApiCreateRequestInputDto } from "./types";
 
 export type RequestDetail = {
     request: Request;
@@ -42,4 +42,37 @@ export async function updateRequest(id: string, input: UpdateRequestInput): Prom
     });
 
     return mapApiRequest(apiRequest);
+}
+
+export type CreateRequestInput = {
+  title: string;
+  description: string;
+  priority: Priority;
+  category: Category;
+};
+
+export async function createRequest(
+  input: CreateRequestInput,
+): Promise<RequestDetail> {
+  const apiInput: ApiCreateRequestInputDto = {
+    title: input.title,
+    description: input.description,
+    priority: input.priority,
+    category: input.category,
+  };
+
+  const apiDetail =
+    await apiFetch<ApiRequestDetailDto>(
+      "/requests",
+      {
+        method: "POST",
+        body: JSON.stringify(apiInput),
+      },
+    );
+
+  return {
+    request: mapApiRequest(apiDetail.request),
+    messages: apiDetail.messages.map(mapApiMessage),
+    users: apiDetail.users.map(mapApiUser),
+  };
 }

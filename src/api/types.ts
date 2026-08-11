@@ -45,3 +45,10 @@ export type ApiUpdateRequestInputDto = {
   status?: ApiRequestDto["status"];
   assignee_id?: string | null;
 }
+
+export type ApiCreateRequestInputDto = {
+  title: string;
+  description: string;
+  priority: ApiRequestDto["priority"];
+  category: ApiRequestDto["category"];
+};
