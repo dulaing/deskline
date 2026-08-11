@@ -1,9 +1,12 @@
 import { useState, type SubmitEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 
-import { messages, requests } from "../../mocks/data";
 import { getSession } from "../auth/session";
 import type {Category, Message, Priority, Request} from "./types";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+
+import { createRequest } from "../../api/requestApi"
 
 type TouchedFields = {
   title: boolean;
@@ -12,6 +15,7 @@ type TouchedFields = {
 
 export function NewRequestPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const currentUser = getSession()?.user ?? null;
 
   const [title, setTitle] = useState("");
@@ -21,6 +25,23 @@ export function NewRequestPage() {
   const [touched, setTouched] = useState<TouchedFields>({
     title: false,
     description: false,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: createRequest,
+
+    onSuccess: (detail) => {
+      queryClient.setQueryData(
+        ["request", detail.request.id],
+        detail,
+      );
+
+      void queryClient.invalidateQueries({
+        queryKey: ["requests"],
+      });
+
+      navigate(`/requests/${detail.request.id}`);
+    },
   });
 
   if (!currentUser) {
@@ -47,33 +68,12 @@ export function NewRequestPage() {
       return;
     }
 
-    const requestId = `request-${crypto.randomUUID()}`;
-    const messageId = `message-${crypto.randomUUID()}`;
-    const now = new Date().toISOString();
-
-    const newRequest: Request = {
-      id: requestId,
+    createMutation.mutate({
       title: title.trim(),
-      status: "open",
+      description: description.trim(),
       priority,
       category,
-      requesterId: requester.id,
-      assigneeId: null,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    const firstMessage: Message = {
-      id: messageId,
-      requestId,
-      authorId: requester.id,
-      body: description.trim(),
-      createdAt: now,
-    };
-
-    requests.unshift(newRequest);
-    messages.push(firstMessage);
-    navigate(`/requests/${requestId}`);
+    });
   }
 
   const showTitleError = touched.title && Boolean(titleError);
@@ -101,6 +101,7 @@ export function NewRequestPage() {
             name="title"
             type="text"
             value={title}
+            disabled={createMutation.isPending}
             placeholder="Example: VPN disconnects repeatedly"
             aria-invalid={showTitleError}
             aria-describedby={showTitleError ? "request-title-error" : undefined}
@@ -125,6 +126,7 @@ export function NewRequestPage() {
             name="description"
             rows={6}
             value={description}
+            disabled={createMutation.isPending}
             placeholder="Describe the problem and anything you already tried."
             aria-invalid={showDescriptionError}
             aria-describedby={showDescriptionError ? "request-description-error" : "request-description-hint"}
@@ -155,6 +157,7 @@ export function NewRequestPage() {
               id="request-category"
               name="category"
               value={category}
+              disabled={createMutation.isPending}
               onChange={(event) => setCategory(event.target.value as Category)}
             >
               <option value="hardware">Hardware</option>
@@ -170,6 +173,7 @@ export function NewRequestPage() {
               id="request-priority"
               name="priority"
               value={priority}
+              disabled={createMutation.isPending}
               onChange={(event) => setPriority(event.target.value as Priority)}
             >
               <option value="low">Low</option>
@@ -179,15 +183,31 @@ export function NewRequestPage() {
           </div>
         </div>
 
+        {createMutation.isError && (
+          <p
+            className="field-error"
+            role="alert"
+          >
+            {createMutation.error instanceof Error
+              ? createMutation.error.message
+              : "Could not create the request."}
+          </p>
+        )}
+
         <div className="form-actions">
+          
           <Link className="button-link" to="/my-requests"> Cancel </Link>
+          
           <button
             className="button button--primary"
             type="submit"
-            disabled={!isValid}
+            disabled={ !isValid || createMutation.isPending }
           >
-            Create request
+            {createMutation.isPending
+              ? "Creating..."
+              : "Create request"}
           </button>
+
         </div>
       </form>
     </section>
