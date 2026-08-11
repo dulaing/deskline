@@ -5,6 +5,8 @@ type ConfirmDialogProps = {
   title: string;
   description: string;
   confirmLabel: string;
+  busy?: boolean;
+  errorMessage?: string;
   onConfirm: () => void;
   onClose: () => void;
 };
@@ -14,6 +16,8 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  busy = false,
+  errorMessage,
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
@@ -43,20 +47,26 @@ export function ConfirmDialog({
       aria-describedby="confirm-dialog-description"
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+
+        if(!busy) {
+          onClose();
+        }
       }}
       onClose={onClose}
     >
       <h2 id="confirm-dialog-title">{title}</h2>
       <p id="confirm-dialog-description">{description}</p>
 
+      {errorMessage && (<p role="alert">{errorMessage}</p>)}
+
       <div className="dialog-actions">
-        <button type="button" onClick={onClose}>
+        <button type="button" disabled={busy} onClick={onClose}>
           Keep request
         </button>
         <button
           type="button"
           className="button button--danger"
+          disabled={busy}
           onClick={onConfirm}
         >
           {confirmLabel}
