@@ -13,6 +13,7 @@ import { RequestMessageThread } from "./RequestMessageThread";
 import { AddCommentForm } from "./AddCommentForm";
 import { AssignToMeButton } from "./AssignToMeButton";
 import { RequestStatusActions } from "./RequestStatusActions";
+import { CloseRequestDialog } from "./CloseRequestDialog";
 
 
 export function RequestDetailPage() {
@@ -24,6 +25,11 @@ export function RequestDetailPage() {
   const [
     isCancelDialogOpen,
     setIsCancelDialogOpen,
+  ] = useState(false);
+
+  const [
+    isCloseDialogOpen,
+    setIsCloseDialogOpen,
   ] = useState(false);
 
   const requestQuery = useQuery({
@@ -135,6 +141,7 @@ export function RequestDetailPage() {
       <RequestStatusActions
         request={request}
         currentUser={currentUser}
+        onCloseRequest={() => setIsCloseDialogOpen(true)}
       />
 
       <RequestMessageThread
@@ -150,6 +157,13 @@ export function RequestDetailPage() {
         requestId={request.id}
         onClose={() => setIsCancelDialogOpen(false)}
       />
+
+      <CloseRequestDialog
+        open={isCloseDialogOpen}
+        requestId={request.id}
+        onClose={() => setIsCloseDialogOpen(false)}
+      />
+      
     </section>
   );
 }

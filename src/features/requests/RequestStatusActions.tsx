@@ -6,11 +6,13 @@ import type { Request, Status, User } from "./types";
 type RequestStatusActionsProps = {
   request: Request;
   currentUser: User;
+  onCloseRequest: () => void;
 };
 
 export function RequestStatusActions({
   request,
   currentUser,
+  onCloseRequest,
 }: RequestStatusActionsProps) {
   const queryClient = useQueryClient();
 
@@ -38,8 +40,12 @@ export function RequestStatusActions({
 
   const canReopen =
     isStaff && request.status === "pending";
+    
+    const canClose =
+        currentUser.role === "admin" &&
+        (request.status === "open" || request.status === "pending");
 
-  if (!canSetPending && !canReopen) {
+  if (!canSetPending && !canReopen && !canClose) {
     return null;
   }
 
@@ -67,6 +73,17 @@ export function RequestStatusActions({
           {statusMutation.isPending
             ? "Updating..."
             : "Reopen"}
+        </button>
+      )}
+
+      {canClose && (
+        <button
+          type="button"
+          className="button--danger"
+          disabled={statusMutation.isPending}
+          onClick={onCloseRequest}
+        >
+          Close request
         </button>
       )}
 
