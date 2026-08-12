@@ -18,10 +18,12 @@ export function AddCommentForm({requestId}: AddCommentFormProps) {
         setBody("");
         
         await Promise.all([
+            // refresh a single request
         queryClient.invalidateQueries({
           queryKey: [ "request", requestId],
         }),
 
+            // refresh the requests list
         queryClient.invalidateQueries({
           queryKey: ["requests"],
         }),
