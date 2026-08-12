@@ -369,6 +369,13 @@ select:focus-visible {
   margin: 0;
 }
 
+.request-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .request-facts div {
   display: grid;
   gap: 0.25rem;

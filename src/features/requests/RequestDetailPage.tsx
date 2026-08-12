@@ -11,6 +11,8 @@ import { RequestDetailHeader } from "./RequestDetailHeader";
 import { RequestMessageThread } from "./RequestMessageThread";
 
 import { AddCommentForm } from "./AddCommentForm";
+import { AssignToMeButton } from "./AssignToMeButton";
+
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -122,6 +124,11 @@ export function RequestDetailPage() {
         backPath={backPath}
         canCancel={canCancel}
         onCancel={() => setIsCancelDialogOpen(true)}
+      />
+
+      <AssignToMeButton
+        request={request}
+        currentUser={currentUser}
       />
 
       <RequestMessageThread
