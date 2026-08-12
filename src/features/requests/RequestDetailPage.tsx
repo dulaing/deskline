@@ -12,6 +12,7 @@ import { RequestMessageThread } from "./RequestMessageThread";
 
 import { AddCommentForm } from "./AddCommentForm";
 import { AssignToMeButton } from "./AssignToMeButton";
+import { RequestStatusActions } from "./RequestStatusActions";
 
 
 export function RequestDetailPage() {
@@ -127,6 +128,11 @@ export function RequestDetailPage() {
       />
 
       <AssignToMeButton
+        request={request}
+        currentUser={currentUser}
+      />
+
+      <RequestStatusActions
         request={request}
         currentUser={currentUser}
       />
