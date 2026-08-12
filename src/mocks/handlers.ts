@@ -1,11 +1,21 @@
 import { delay, http, HttpResponse } from 'msw';
 import { messages, requests, users } from './data';
 import { toApiMessage, toApiRequest, toApiUser } from './serializers';
-import type { ApiLoginInputDto, ApiLoginResponseDto, ApiRequestDetailDto, ApiUpdateRequestInputDto, ApiCreateRequestInputDto } from '../api/types';
+
+import type {
+    ApiLoginInputDto,
+    ApiLoginResponseDto,
+    ApiRequestDetailDto,
+    ApiUpdateRequestInputDto,
+    ApiCreateRequestInputDto,
+    ApiAddMessageInputDto } from '../api/types';
+
 import { getAuthenticatedUser } from "./auth";
 import { canChangeAssignee, canChangeStatus } from './requestRules';
-import type { Message as DesklineMessage, 
-         Request as DesklineRequest,
+
+import type {
+    Message as DesklineMessage, 
+    Request as DesklineRequest,
 } from "../features/requests/types"
 
 export const handlers = [
