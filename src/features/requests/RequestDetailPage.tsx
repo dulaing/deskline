@@ -10,6 +10,8 @@ import { CancelRequestDialog } from "./CancelRequestDialog";
 import { RequestDetailHeader } from "./RequestDetailHeader";
 import { RequestMessageThread } from "./RequestMessageThread";
 
+import { AddCommentForm } from "./AddCommentForm";
+
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const requestId = id ?? "";
@@ -26,6 +28,8 @@ export function RequestDetailPage() {
     queryFn: () => getRequest(requestId),
     enabled: requestId !== "",
   });
+
+  
 
   if (!currentUser) {
     return <Navigate to="/login" replace />;
@@ -101,6 +105,10 @@ export function RequestDetailPage() {
     users,
   } = requestQuery.data;
 
+  const canComment =
+    request.status === "open" ||
+    request.status === "pending";
+
   const canCancel =
     currentUser.role === "requester" &&
     currentUser.id === request.requesterId &&
@@ -121,6 +129,8 @@ export function RequestDetailPage() {
         users={users}
         status={request.status}
       />
+
+      {canComment && ( <AddCommentForm requestId={request.id}/> )}
 
       <CancelRequestDialog
         open={isCancelDialogOpen}
