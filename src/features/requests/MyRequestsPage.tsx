@@ -4,11 +4,16 @@ import {getRequests} from "../../api/requestApi";
 import { getSession } from "../auth/session";
 import { RequestList } from "./RequestList";
 import { RequestFilters } from "./RequestFilters";
-import type { Category, Priority, Status } from "./types";
+import {
+  filterRequestsByBaseFilters,
+  hasActiveBaseFilters,
+  type BaseFilterKey,
+  type CategoryFilter,
+  type PriorityFilter,
+  type StatusFilter,
+} from "./requestFiltering";
 
 import { Link, useSearchParams } from "react-router";
-
-type FilterKey = "search" | "status" | "priority" | "category";
 
 export function MyRequestsPage() {
 
@@ -34,9 +39,16 @@ export function MyRequestsPage() {
 
 
   const titleSearch = searchParams.get("search") ?? "";
-  const statusFilter = (searchParams.get("status") as Status | null) ?? "all";
-  const priorityFilter = (searchParams.get("priority") as Priority | null) ?? "all";
-  const categoryFilter = (searchParams.get("category") as Category | null) ?? "all";
+  const statusFilter = (searchParams.get("status") as StatusFilter | null) ?? "all";
+  const priorityFilter = (searchParams.get("priority") as PriorityFilter | null) ?? "all";
+  const categoryFilter = (searchParams.get("category") as CategoryFilter | null) ?? "all";
+
+  const filters = {
+    titleSearch,
+    status: statusFilter,
+    priority: priorityFilter,
+    category: categoryFilter,
+  };
 
   if (isPending) {
   return (
@@ -65,27 +77,16 @@ if (isError) {
   );
 }
 
-  const hasActiveFilters =
-    titleSearch !== "" ||
-    statusFilter !== "all" ||
-    priorityFilter !== "all" ||
-    categoryFilter !== "all";
+  const hasActiveFilters = hasActiveBaseFilters(filters);
 
   // if a user is logged in, filter the requests to only include the requests that the user has created
   const myRequests = currentUser ? requests.filter((request) => request.requesterId === currentUser.id) : [];
 
-  const filteredRequests = myRequests.filter((request) => {
-
-    const matchesTitle = request.title.toLowerCase().includes(titleSearch.toLowerCase());
-    const matchesStatus = statusFilter === "all" || request.status === statusFilter;
-    const matchesPriority = priorityFilter === "all" || request.priority === priorityFilter;
-    const matchesCategory = categoryFilter === "all" || request.category === categoryFilter;
-
-    return (matchesTitle && matchesStatus && matchesPriority && matchesCategory);
-  });
+  const filteredRequests =
+    filterRequestsByBaseFilters(myRequests, filters);
 
   // the function that updates the URL
-  function updateFilter(key:FilterKey, value:string): void {
+  function updateFilter(key: BaseFilterKey, value:string): void {
 
     const nextSearchParams = new URLSearchParams(searchParams);
 
