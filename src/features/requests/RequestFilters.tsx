@@ -1,14 +1,18 @@
 import type { Category, Priority, Status } from "./types";
 
+export type AssigneeFilter = "all" | "unassigned" | "me";
+
 type RequestFiltersProps = {
   titleSearch: string;
   status: Status | "all";
   priority: Priority | "all";
   category: Category | "all";
+  assignee?: AssigneeFilter;
   onTitleSearchChange: (value: string) => void;
   onStatusChange: (value: Status | "all") => void;
   onPriorityChange: (value: Priority | "all") => void;
   onCategoryChange: (value: Category | "all") => void;
+  onAssigneeChange?: (value: AssigneeFilter) => void;
 };
 
 export function RequestFilters({
@@ -16,10 +20,12 @@ export function RequestFilters({
   status,
   priority,
   category,
+  assignee,
   onTitleSearchChange,
   onStatusChange,
   onPriorityChange,
   onCategoryChange,
+  onAssigneeChange,
 }: RequestFiltersProps) {
   return (
     <fieldset className="request-filters">
@@ -87,6 +93,25 @@ export function RequestFilters({
           <option value="access">Access</option>
         </select>
       </label>
+
+      {assignee !== undefined && onAssigneeChange && (
+        <label htmlFor="request-assignee-filter">
+          <span>Assignee</span>
+          <select
+            id="request-assignee-filter"
+            value={assignee}
+            onChange={(event) =>
+              onAssigneeChange(
+                event.target.value as AssigneeFilter,
+              )
+            }
+          >
+            <option value="all">All assignees</option>
+            <option value="unassigned">Unassigned</option>
+            <option value="me">Me</option>
+          </select>
+        </label>
+      )}
     </fieldset>
   );
 }

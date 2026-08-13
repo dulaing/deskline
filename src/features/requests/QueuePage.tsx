@@ -3,7 +3,10 @@ import { useSearchParams } from "react-router";
 
 import { getRequests } from "../../api/requestApi";
 import { RequestList } from "./RequestList";
-import { RequestFilters } from "./RequestFilters";
+import {
+  RequestFilters,
+  type AssigneeFilter,
+} from "./RequestFilters";
 import {
   filterRequestsByBaseFilters,
   hasActiveBaseFilters,
@@ -12,10 +15,14 @@ import {
   type PriorityFilter,
   type StatusFilter,
 } from "./requestFiltering";
+import { getSession } from "../auth/session";
+
+type QueueFilterKey = BaseFilterKey | "assignee";
 
 export function QueuePage() {
   const [searchParams, setSearchParams] =
     useSearchParams();
+  const currentUser = getSession()?.user ?? null;
 
   const {
     data: requests = [],
@@ -39,6 +46,9 @@ export function QueuePage() {
     const categoryFilter =
       (searchParams.get("category") as CategoryFilter | null) ??
       "all";
+    const assigneeFilter =
+      (searchParams.get("assignee") as AssigneeFilter | null) ??
+      "all";
 
     const filters = {
       titleSearch,
@@ -48,13 +58,30 @@ export function QueuePage() {
     };
 
     const hasActiveFilters =
-      hasActiveBaseFilters(filters);
+      hasActiveBaseFilters(filters) ||
+      assigneeFilter !== "all";
 
-    const filteredRequests =
+    const baseFilteredRequests =
       filterRequestsByBaseFilters(requests, filters);
 
+    const filteredRequests =
+      baseFilteredRequests.filter((request) => {
+        if (assigneeFilter === "all") {
+          return true;
+        }
+
+        if (assigneeFilter === "unassigned") {
+          return request.assigneeId === null;
+        }
+
+        return (
+          currentUser !== null &&
+          request.assigneeId === currentUser.id
+        );
+      });
+
     function updateFilter(
-      key: BaseFilterKey,
+      key: QueueFilterKey,
       value: string,
     ): void {
       const nextSearchParams =
@@ -119,6 +146,7 @@ export function QueuePage() {
           status={statusFilter}
           priority={priorityFilter}
           category={categoryFilter}
+          assignee={assigneeFilter}
           onTitleSearchChange={(value) =>
             updateFilter("search", value)
           }
@@ -130,6 +158,9 @@ export function QueuePage() {
           }
           onCategoryChange={(value) =>
             updateFilter("category", value)
+          }
+          onAssigneeChange={(value) =>
+            updateFilter("assignee", value)
           }
         />
 
