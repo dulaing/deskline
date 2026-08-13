@@ -14,6 +14,7 @@ import { AddCommentForm } from "./AddCommentForm";
 import { AssignToMeButton } from "./AssignToMeButton";
 import { RequestStatusActions } from "./RequestStatusActions";
 import { CloseRequestDialog } from "./CloseRequestDialog";
+import { AdminAssigneeSelect } from "./AdminAssigneeSelect";
 
 
 export function RequestDetailPage() {
@@ -138,6 +139,11 @@ export function RequestDetailPage() {
         currentUser={currentUser}
       />
 
+      <AdminAssigneeSelect
+  request={request}
+  currentUser={currentUser}
+/>
+
       <RequestStatusActions
         request={request}
         currentUser={currentUser}
@@ -163,7 +169,7 @@ export function RequestDetailPage() {
         requestId={request.id}
         onClose={() => setIsCloseDialogOpen(false)}
       />
-      
+
     </section>
   );
 }

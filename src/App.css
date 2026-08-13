@@ -477,6 +477,33 @@ select:focus-visible {
     transform 160ms var(--ease-out);
 }
 
+.assignee-control {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 14rem;
+}
+
+.assignee-control span {
+  color: var(--text-strong);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.assignee-control select {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  background: var(--background);
+}
+
+.assignee-control select:focus {
+  border-color: var(--accent);
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+}
+
 @starting-style {
   .confirm-dialog[open] {
     opacity: 0;
