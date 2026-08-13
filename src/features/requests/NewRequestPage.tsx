@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 
 import { getSession } from "../auth/session";
-import type {Category, Message, Priority, Request} from "./types";
+import type {Category, Priority} from "./types";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
@@ -51,8 +51,6 @@ export function NewRequestPage() {
   if (currentUser.role !== "requester") {
     return <Navigate to="/queue" replace />;
   }
-
-  const requester = currentUser;
 
   const titleError = title.trim().length < 3 ? "Enter at least 3 characters." : "";
 
