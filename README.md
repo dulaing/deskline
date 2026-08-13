@@ -40,16 +40,57 @@ Use these emails:
 | Technician | technician@deskline.test |
 | Admin | admin@deskline.test |
 
-## What Works
+## Role Logic
 
-- Login and logout
-- Protected routes for requester, technician, and admin
-- Requester flow: create request, view own requests, comment, cancel open requests
-- Staff flow: view queue, comment, assign to me, set pending, reopen
-- Admin flow: reassign requests and close requests
-- Loading, error, retry, empty, and no-match states
-- Light and dark theme toggle
-- Reduce motion toggle
+Deskline has three user roles. Each role sees different pages and actions.
+
+### Requester
+
+Requesters can:
+
+- Create a new request
+- View their own requests
+- Open a request detail page
+- Add comments while the request is open or pending
+- Cancel their own open request after confirming
+
+Requesters cannot view the staff queue or change assignees.
+
+### Technician
+
+Technicians can:
+
+- View the shared request queue
+- Open any request detail page
+- Add comments while the request is open or pending
+- Assign a request to themselves
+- Move a request from open to pending
+- Move a request from pending back to open
+
+Technicians cannot close requests or reassign requests to other people.
+
+### Admin
+
+Admins can:
+
+- View the shared request queue
+- Open any request detail page
+- Add comments while the request is open or pending
+- Assign a request to themselves
+- Reassign requests to staff members
+- Move a request from open to pending
+- Move a request from pending back to open
+- Close open or pending requests after confirming
+
+### Shared App Behavior
+
+All signed-in users can:
+
+- Log out
+- Change light or dark theme
+- Turn Reduce motion on or off
+
+The app also includes loading, error, retry, empty, and no-match states.
 
 ## Routes
 
