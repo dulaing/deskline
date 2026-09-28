@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 
 import { getSession } from "../auth/session";
@@ -58,6 +58,8 @@ export function NewRequestPage() {
 
   const isValid = !titleError && !descriptionError;
 
+   const isSubmittingRef = useRef(false);
+
   function handleSubmit(event: SubmitEvent<HTMLFormElement> ): void {
     event.preventDefault();
 
@@ -66,12 +68,23 @@ export function NewRequestPage() {
       return;
     }
 
+    // inside handleSubmit, before mutate:
+    if (isSubmittingRef.current) return;
+
+    isSubmittingRef.current = true;
+
     createMutation.mutate({
       title: title.trim(),
       description: description.trim(),
       priority,
       category,
-    });
+    },
+    {
+        onSettled: () => {
+          isSubmittingRef.current = false;
+        },
+      },
+   );
   }
 
   const showTitleError = touched.title && Boolean(titleError);
